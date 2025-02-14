@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>연립이차부등식</title>
+  <!-- MathJax for LaTeX rendering -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    defer
+  ></script>
+  <style>
+    /* 흑백 테마 */
+    body {
+      background-color: white;
+      color: black;
+      font-family: sans-serif;
+      margin: 30px;
+    }
+    h1, h2, h3 {
+      text-align: center;
+    }
+    .centered {
+      text-align: center;
+    }
+    .hidden {
+      display: none;
+    }
+    .energy-bar {
+      height: 20px;
+      background-color: black;
+      transition: width 0.2s;
+    }
+    .question-box {
+      border: 1px solid black;
+      padding: 15px;
+      margin: 15px 0;
+    }
+    .answer-choice {
+      margin: 8px 0;
+    }
+    .answer-choice input {
+      margin-right: 8px;
+    }
+    .notice {
+      font-weight: bold;
+      color: black;
+      margin: 10px 0;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+    #response {
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
+    button {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>연립이차부등식</h1>
+
+<div id="main-menu">
+  <div class="centered">
+    <h2>이름을 입력하세요</h2>
+    <input type="text" id="playerName" placeholder="이름" style="text-align:center;" />
+  </div>
+  <div class="centered" style="margin-top:20px;">
+    <h2>난이도를 선택하세요</h2>
+    <label><input type="radio" name="difficulty" value="hardest" /> 최상 (20초 / 문제, 20점)</label><br/>
+    <label><input type="radio" name="difficulty" value="hard" /> 상 (30초 / 문제, 15점)</label><br/>
+    <label><input type="radio" name="difficulty" value="medium" /> 중 (40초 / 문제, 13점)</label><br/>
+    <label><input type="radio" name="difficulty" value="easy" /> 하 (시간제한 없음, 10점)</label>
+  </div>
+  <div class="centered" style="margin-top:20px;">
+    <button onclick="startGame()">게임 시작</button>
+  </div>
+</div>
+
+<div id="quiz-container" class="hidden">
+  <div class="centered">
+    <h2 id="timerDisplay"></h2>
+    <div style="width: 100%; border: 1px solid black;">
+      <div id="energyBar" class="energy-bar" style="width:100%;"></div>
+    </div>
+  </div>
+  <div class="centered">
+    <p>남은 기회: <span id="lives">3</span></p>
+    <p>현재 점수: <span id="currentScore">0</span></p>
+    <p>경과 시간: <span id="totalTime">0</span>초</p>
+  </div>
+  <div id="questionArea" class="question-box"></div>
+</div>
+
+<div id="end-screen" class="hidden centered">
+  <h2 id="endMessage"></h2>
+  <p>최종 점수: <span id="finalScore">0</span></p>
+  <p>총 소요 시간: <span id="finalTime">0</span>초</p>
+  <button onclick="submitScore()">점수 전송</button>
+  <div id="response"></div>
+</div>
+
+<script>
+  /*
+    [게임 안내]
+    - 문제들은 모두 원문 그대로, 정답만 correct 속성으로 관리.
+    - 난이도별 시간/점수:
+        최상(hardest): 20초, 문제당 20점
+        상(hard): 30초, 문제당 15점
+        중(medium): 40초, 문제당 13점
+        하(easy): 시간제한 없음, 문제당 10점
+    - 3번 틀리면 종료.
+    - 문제마다 에너지바(시간) 소진: 다 되면
